@@ -1,7 +1,7 @@
 #include "utils.h"
 #include "makeQvectors.h"
 
-RInterface defineVariables(RInterface &d);
+filteredDF defineVariables(definedDF &d);
 void setupQvectors();
 
 void makeQvectors(string inputFiles="/home/ogolosov/desktop/bman/data/run8/sim/dcm_4gev.root", string calibFilePath="qa.root", string outFilePath="qn.root")
@@ -14,10 +14,9 @@ void makeQvectors(string inputFiles="/home/ogolosov/desktop/bman/data/run8/sim/d
   cout << "Done!\n";
 }
 
-RInterface defineVariables(RInterface &d)
+filteredDF defineVariables(definedDF &d)
 {
   auto dd=d
-    //.Filter("vtxChi2>0.0001")
     .Define("fhcalModPhi","RVec<float> phi; for(auto& pos:fhcalModPos) phi.push_back(pos.phi()); return phi;")
     .Define("fhcalModX","RVec<float> x; for(auto& pos:fhcalModPos) x.push_back(pos.x()); return x;")
     .Define("fhcalModY","RVec<float> y; for(auto& pos:fhcalModPos) y.push_back(pos.y()); return y;")
@@ -31,6 +30,9 @@ RInterface defineVariables(RInterface &d)
     .Define("simPt","RVec<float> pt;for(auto& mom:simMom) pt.push_back(mom.pt()); return pt;")
     .Define("simEta","RVec<float> eta;for(auto& mom:simMom) eta.push_back(mom.eta()); return eta;")
     .Define("simPhi","RVec<float> phi;for(auto& mom:simMom) phi.push_back(mom.phi()); return phi;")
+    .Define("eventId", "evtId") // for progress indicator 
+    .Filter("eventId>=0") // at least one filter is mandatory!!!
+    .Filter("vtxChi2>0.0001")
   ;
   
   varPatterns=
@@ -38,7 +40,7 @@ RInterface defineVariables(RInterface &d)
     "b",                                             // kEvent
     "(fhcal|scwall)Mod(X|Y|Phi|E|Id|InSub.)",        // kChannel 
     "tr(Pt|Eta|Phi|BetaTof400|BetaTof700|SimIndex)", // kRecParticle  
-    "sim(Pt|Eta|Phi|Pdg|MotherId)"                   // kSimParticle  
+    "",//"sim(Pt|Eta|Phi|Pdg|MotherId)"                   // kSimParticle  
   };
 
   return dd; 

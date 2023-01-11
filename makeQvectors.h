@@ -1,4 +1,5 @@
-using RInterface=ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager, void>;
+using filteredDF=ROOT::RDF::RInterface<ROOT::Detail::RDF::RJittedFilter, void>;
+using definedDF=ROOT::RDF::RInterface<ROOT::Detail::RDF::RLoopManager, void>;
 using ROOT::VecOps::RVec;
 
 enum varType
@@ -20,7 +21,7 @@ vector <string> varPatterns(kNVarTypes);
 vector <vector<string>> varNames(kNVarTypes);
 vector<short> vcInitialPositions(kNVarTypes, 0);
 
-void InitVariables(RInterface &d, vector <string> &patterns, vector<vector<string>> &varNames) 
+void InitVariables(filteredDF &d, vector <string> &patterns, vector<vector<string>> &varNames) 
 {
   // Add all needed variables
   short ivar=0;
@@ -60,7 +61,7 @@ void InitVariables(RInterface &d, vector <string> &patterns, vector<vector<strin
   man.AddVariable("particleType", particleTypePosition, 1);
 }
 
-RInterface DefineVariableFilling(RInterface &d, vector <vector<string>> &varNames)
+void DefineVariableFilling(filteredDF &d, vector <vector<string>> &varNames)
 {
   string vcEventFillExpr="vector<float> vcEvent; ";
   for (auto& var:varNames.at(kEvent))
@@ -74,25 +75,30 @@ RInterface DefineVariableFilling(RInterface &d, vector <vector<string>> &varName
   vcModuleFillExpr+="return vcModule;";
   cout << endl << vcModuleFillExpr << endl; 
   
-  string vcRecPartFillExpr=Form("vector<vector<float>> vcRecParticle(%s.size()); for(int i=0;i<vcRecParticle.size();i++) { ", varNames.at(kRecParticle).at(0).c_str());
+  string nRecPart="0";
+  if (varNames.at(kRecParticle).size()>0)
+    nRecPart=varNames.at(kRecParticle).front() + ".size()";
+  string vcRecPartFillExpr=Form("vector<vector<float>> vcRecParticle(%s); for(int i=0;i<vcRecParticle.size();i++) { ", nRecPart.c_str());
   for (auto& var:varNames.at(kRecParticle))
     vcRecPartFillExpr+=Form("vcRecParticle.at(i).push_back(%s.at(i)); ", var.c_str());
   vcRecPartFillExpr+=" } return vcRecParticle;";
   cout << endl << vcRecPartFillExpr << endl; 
   
-  string vcSimPartFillExpr=Form("vector<vector<float>> vcSimParticle(%s.size()); for(int i=0;i<vcSimParticle.size();i++) { ", varNames.at(kSimParticle).at(0).c_str());
+  string nSimPart="0";
+  if (varNames.at(kSimParticle).size()>0)
+    nSimPart=varNames.at(kSimParticle).front() + ".size()";
+  string vcSimPartFillExpr=Form("vector<vector<float>> vcSimParticle(%s); for(int i=0;i<vcSimParticle.size();i++) { ", nSimPart.c_str());
   for (auto& var:varNames.at(kSimParticle))
     vcSimPartFillExpr+=Form("vcSimParticle.at(i).push_back(%s.at(i)); ", var.c_str());
   vcSimPartFillExpr+=" } return vcSimParticle;";
   cout << endl << vcSimPartFillExpr << endl; 
   
-  auto dd=d.Define("vcEvent", vcEventFillExpr)
-           .Define("vcModule", vcModuleFillExpr)
-           .Define("vcRecParticle", vcRecPartFillExpr)
-           .Define("vcSimParticle", vcSimPartFillExpr)
+  d=d.Define("vcEvent", vcEventFillExpr)
+     .Define("vcModule", vcModuleFillExpr)
+     .Define("vcRecParticle", vcRecPartFillExpr)
+     .Define("vcSimParticle", vcSimPartFillExpr)
   ;
-//  dd.Display({/*"vcEvent","vcModule","vcRecParticle",*/"vcSimParticle"},2)->Print();
-  return dd;
+//  d.Display({/*"vcEvent","vcModule","vcRecParticle",*/"vcSimParticle"},2)->Print();
 }
 
 void processEvent(const unsigned int eventId, const vector<float> vcEvent, const vector<float> vcModule, const vector<vector<float>> vcRecParticle, const vector<vector<float>> vcSimParticle)
@@ -125,7 +131,7 @@ void processEvent(const unsigned int eventId, const vector<float> vcEvent, const
   man.ProcessCorrections();
 }
 
-void init(RInterface &d, string outFilePath, string calibFilePath)
+void init(filteredDF &d, string outFilePath, string calibFilePath)
 {
   outFile = TFile::Open(outFilePath.c_str(), "recreate");
   outFile->cd();
@@ -141,11 +147,11 @@ void init(RInterface &d, string outFilePath, string calibFilePath)
   InitVariables(d, varPatterns, varNames);
 }
 
-void run(RInterface &d) {
+void run(filteredDF &d) {
   man.InitializeOnNode();
   man.SetCurrentRunName("test");
-  auto dd=DefineVariableFilling(d, varNames);
-  dd.Foreach(processEvent, {"evtId", "vcEvent", "vcModule", "vcRecParticle", "vcSimParticle"});
+  DefineVariableFilling(d, varNames);
+  d.Foreach(processEvent, {"eventId", "vcEvent", "vcModule", "vcRecParticle", "vcSimParticle"});
   cout << endl;
   
   man.Finalize();
