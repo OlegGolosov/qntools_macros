@@ -1,0 +1,111 @@
+diff --git a/include/base/QnTools/Cuts.hpp b/include/base/QnTools/Cuts.hpp
+index 4a8cfa2..3164472 100644
+--- a/include/base/QnTools/Cuts.hpp
++++ b/include/base/QnTools/Cuts.hpp
+@@ -20,8 +20,8 @@
+ #ifndef QNCUTS_H
+ #define QNCUTS_H
+ 
+-#include "ROOT/RIntegerSequence.hxx"
+-#include "ROOT/RMakeUnique.hxx"
++//#include "ROOT/RIntegerSequence.hxx"
++//#include "ROOT/RMakeUnique.hxx"
+ #include <string>
+ 
+ namespace Qn {
+@@ -181,4 +181,4 @@ std::unique_ptr<ICut> MakeUniqueCut(const std::vector<Variable> &arr, Function &
+ 
+ 
+ 
+-#endif
+\ No newline at end of file
++#endif
+diff --git a/include/correction/QnTools/CorrectionCuts.hpp b/include/correction/QnTools/CorrectionCuts.hpp
+index d353c86..437e41d 100644
+--- a/include/correction/QnTools/CorrectionCuts.hpp
++++ b/include/correction/QnTools/CorrectionCuts.hpp
+@@ -24,8 +24,8 @@
+ #include <vector>
+ #include <functional>
+ 
+-#include "ROOT/RMakeUnique.hxx"
+-#include "ROOT/RIntegerSequence.hxx"
++//#include "ROOT/RMakeUnique.hxx"
++//#include "ROOT/RIntegerSequence.hxx"
+ 
+ #include "InputVariableManager.hpp"
+ #include "QAHistogram.hpp"
+diff --git a/include/correction/QnTools/Detector.hpp b/include/correction/QnTools/Detector.hpp
+index 58b5913..f6c6d07 100644
+--- a/include/correction/QnTools/Detector.hpp
++++ b/include/correction/QnTools/Detector.hpp
+@@ -22,7 +22,7 @@
+ #include <memory>
+ #include <utility>
+ 
+-#include "ROOT/RMakeUnique.hxx"
++//#include "ROOT/RMakeUnique.hxx"
+ 
+ #include "CorrectionAxisSet.hpp"
+ #include "SubEventChannels.hpp"
+diff --git a/include/correction/QnTools/QAHistogram.hpp b/include/correction/QnTools/QAHistogram.hpp
+index 39c2e42..596c826 100644
+--- a/include/correction/QnTools/QAHistogram.hpp
++++ b/include/correction/QnTools/QAHistogram.hpp
+@@ -25,8 +25,8 @@
+ #include "TH2.h"
+ #include "TH3F.h"
+ #include "TList.h"
+-#include "ROOT/RMakeUnique.hxx"
+-#include "ROOT/RIntegerSequence.hxx"
++//#include "ROOT/RMakeUnique.hxx"
++//#include "ROOT/RIntegerSequence.hxx"
+ #include "TROOT.h"
+ 
+ #include "Axis.hpp"
+diff --git a/src/correction/Alignment.cpp b/src/correction/Alignment.cpp
+index b9e039e..afa3419 100644
+--- a/src/correction/Alignment.cpp
++++ b/src/correction/Alignment.cpp
+@@ -34,7 +34,7 @@
+ #include "Alignment.hpp"
+ #include "CorrectionAxisSet.hpp"
+ #include "DetectorList.hpp"
+-#include "ROOT/RMakeUnique.hxx"
++//#include "ROOT/RMakeUnique.hxx"
+ 
+ /// \cond CLASSIMP
+ ClassImp(Qn::Alignment);
+diff --git a/src/correction/GainEqualization.cpp b/src/correction/GainEqualization.cpp
+index 55c5068..39e8f83 100644
+--- a/src/correction/GainEqualization.cpp
++++ b/src/correction/GainEqualization.cpp
+@@ -36,7 +36,7 @@
+ #include "CorrectionHistogramChannelizedSparse.hpp"
+ #include "CorrectionProfileChannelized.hpp"
+ #include "CorrectionProfileChannelizedIngress.hpp"
+-#include "ROOT/RMakeUnique.hxx"
++//#include "ROOT/RMakeUnique.hxx"
+ #include "SubEventChannels.hpp"
+ /// \cond CLASSIMP
+ ClassImp(Qn::GainEqualization);
+diff --git a/src/correction/Recentering.cpp b/src/correction/Recentering.cpp
+index 3a454dc..0cb8e78 100644
+--- a/src/correction/Recentering.cpp
++++ b/src/correction/Recentering.cpp
+@@ -36,7 +36,7 @@
+ #include "CorrectionAxisSet.hpp"
+ #include "CorrectionHistogramSparse.hpp"
+ #include "CorrectionProfileComponents.hpp"
+-#include "ROOT/RMakeUnique.hxx"
++//#include "ROOT/RMakeUnique.hxx"
+ #include "Recentering.hpp"
+ #include "SubEvent.hpp"
+ 
+@@ -241,4 +241,4 @@ void Recentering::ClearCorrectionStep() {
+   fCorrectedQnVector->Reset();
+ }
+ 
+-}// namespace Qn
+\ No newline at end of file
++}// namespace Qn
