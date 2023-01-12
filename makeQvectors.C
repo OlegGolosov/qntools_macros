@@ -6,12 +6,20 @@ void setupQvectors();
 
 void makeQvectors(string inputFiles="/home/ogolosov/desktop/bman/data/run8/sim/dcm_4gev.root", string calibFilePath="qa.root", string outFilePath="qn.root")
 {
-  ROOT::RDataFrame d(*makeChain(inputFiles, "t"));
+  TStopwatch timer;
+  timer.Start();
+  std::string treename = "t";
+  ROOT::RDataFrame d(*makeChain(inputFiles, treename.c_str()));
   auto dd=defineVariables(d);
   init(dd, outFilePath, calibFilePath);
   setupQvectors(); 
+  timer.Stop();
+  timer.Print();
+  timer.Start();
   run(dd);
   cout << "Done!\n";
+  timer.Stop();
+  timer.Print();
 }
 
 filteredDF defineVariables(definedDF &d)
