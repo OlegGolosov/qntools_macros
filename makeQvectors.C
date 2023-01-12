@@ -30,9 +30,7 @@ filteredDF defineVariables(definedDF &d)
     .Define("simPt","RVec<float> pt;for(auto& mom:simMom) pt.push_back(mom.pt()); return pt;")
     .Define("simEta","RVec<float> eta;for(auto& mom:simMom) eta.push_back(mom.eta()); return eta;")
     .Define("simPhi","RVec<float> phi;for(auto& mom:simMom) phi.push_back(mom.phi()); return phi;")
-    .Define("eventId", "evtId") // for progress indicator 
-    .Filter("eventId>=0") // at least one filter is mandatory!!!
-    .Filter("vtxChi2>0.0001")
+    .Filter("vtxChi2>0.0001") // at least one filter is mandatory!!!
   ;
   
   varPatterns=
@@ -40,7 +38,7 @@ filteredDF defineVariables(definedDF &d)
     "b",                                             // kEvent
     "(fhcal|scwall)Mod(X|Y|Phi|E|Id|InSub.)",        // kChannel 
     "tr(Pt|Eta|Phi|BetaTof400|BetaTof700|SimIndex)", // kRecParticle  
-    "",//"sim(Pt|Eta|Phi|Pdg|MotherId)"                   // kSimParticle  
+    "sim(Pt|Eta|Phi|Pdg|MotherId)"                   // kSimParticle  
   };
 
   return dd; 

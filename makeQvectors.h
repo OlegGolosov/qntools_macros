@@ -101,7 +101,7 @@ void DefineVariableFilling(filteredDF &d, vector <vector<string>> &varNames)
 //  d.Display({/*"vcEvent","vcModule","vcRecParticle",*/"vcSimParticle"},2)->Print();
 }
 
-void processEvent(const unsigned int eventId, const vector<float> vcEvent, const vector<float> vcModule, const vector<vector<float>> vcRecParticle, const vector<vector<float>> vcSimParticle)
+void processEvent(const ULong64_t eventId, const vector<float> vcEvent, const vector<float> vcModule, const vector<vector<float>> vcRecParticle, const vector<vector<float>> vcSimParticle)
 {
   cout << "\r" << eventId;
   man.Reset();
@@ -151,7 +151,7 @@ void run(filteredDF &d) {
   man.InitializeOnNode();
   man.SetCurrentRunName("test");
   DefineVariableFilling(d, varNames);
-  d.Foreach(processEvent, {"eventId", "vcEvent", "vcModule", "vcRecParticle", "vcSimParticle"});
+  d.Foreach(processEvent, {"rdfentry_", "vcEvent", "vcModule", "vcRecParticle", "vcSimParticle"});
   cout << endl;
   
   man.Finalize();
