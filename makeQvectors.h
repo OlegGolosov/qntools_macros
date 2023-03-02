@@ -148,6 +148,7 @@ void init(filteredDF &d, string outFilePath, string calibFilePath)
 }
 
 void run(filteredDF &d) {
+  cout << "Number of Events: " << *(d.Count()) << endl;
   man.InitializeOnNode();
   man.SetCurrentRunName("test");
   DefineVariableFilling(d, varNames);

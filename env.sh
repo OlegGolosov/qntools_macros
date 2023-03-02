@@ -1,2 +1,7 @@
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/ogolosov/desktop/analysis/qntools/install/lib
-export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:/home/ogolosov/desktop/analysis/qntools/install/include/QnTools
+ANALYSIS_DIR=/home/ogolosov/desktop/analysis
+QNTOOLS_INSTALL_DIR=$ANALYSIS_DIR/qntools/install
+PID_DIR=$ANALYSIS_DIR/pid/build
+CENTRALITY_DIR=$ANALYSIS_DIR/centrality/build
+QA_DIR=$ANALYSIS_DIR/na61/qa
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$QNTOOLS_INSTALL_DIR/lib:$CENTRALITY_DIR:$PID_DIR
+export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$QNTOOLS_INSTALL_DIR/include/QnTools:$QA_DIR

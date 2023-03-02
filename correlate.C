@@ -3,22 +3,39 @@
 
 vector <vector<string>> Q1Q1=
 {
-  {"fhcal1_RECENTERED", "fhcal2_RECENTERED"},
-  {"fhcal2_RECENTERED", "fhcal3_RECENTERED"},
-  {"fhcal3_RECENTERED", "fhcal1_RECENTERED"},
+  {"psd0_RECENTERED", "psd1_RECENTERED"},
+  {"psd0_RECENTERED", "psd2_RECENTERED"},
+  {"psd0_RECENTERED", "psd3_RECENTERED"},
+  {"psd1_RECENTERED", "psd2_RECENTERED"},
+  {"psd1_RECENTERED", "psd3_RECENTERED"},
+  {"psd2_RECENTERED", "psd3_RECENTERED"},
 };
 
 vector <vector<string>> u1Q1=
 {
-  {"tr_RESCALED", "fhcal1_RECENTERED"},
-  {"tr_RESCALED", "fhcal2_RECENTERED"},
-  {"tr_RESCALED", "fhcal3_RECENTERED"},
+  {"proton_pt_RESCALED", "psd0_RECENTERED"},
+  {"proton_y_RESCALED", "psd0_RECENTERED"},
+  {"proton_pt_RESCALED", "psd1_RECENTERED"},
+  {"proton_y_RESCALED", "psd1_RECENTERED"},
+  {"proton_pt_RESCALED", "psd2_RECENTERED"},
+  {"proton_y_RESCALED", "psd2_RECENTERED"},
+  {"proton_pt_RESCALED", "psd3_RECENTERED"},
+  {"proton_y_RESCALED", "psd3_RECENTERED"},
+
+  {"pionneg_pt_RESCALED", "psd0_RECENTERED"},
+  {"pionneg_y_RESCALED", "psd0_RECENTERED"},
+  {"pionneg_pt_RESCALED", "psd1_RECENTERED"},
+  {"pionneg_y_RESCALED", "psd1_RECENTERED"},
+  {"pionneg_pt_RESCALED", "psd2_RECENTERED"},
+  {"pionneg_y_RESCALED", "psd2_RECENTERED"},
+  {"pionneg_pt_RESCALED", "psd3_RECENTERED"},
+  {"pionneg_y_RESCALED", "psd3_RECENTERED"},
 };
 
 void correlate(string inputFiles="qn.root", string outputFile="corr.root")
 {
   int nSamples = 50;
-  Qn::AxisD centAxis({"b", 4,0,10});
+  Qn::AxisD centAxis("centrality", {0, 5, 10, 15, 25, 35, 45, 60, 80, 100.});
   auto axes_correlation = Qn::MakeAxes(centAxis);
   TChain *c=makeChain(inputFiles, "tree");
   ROOT::RDataFrame d(*c);
@@ -37,19 +54,19 @@ void correlate(string inputFiles="qn.root", string outputFile="corr.root")
   {
     std::array<std::string, 2> qn{corr.at(0), corr.at(1)};
     string corrName=corr.at(0)+"_"+corr.at(1); 
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_XX", P2::xx(1, 1), wUnity, wn, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_YY", P2::yy(1, 1), wUnity, wn, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_XY", P2::xy(1, 1), wUnity, wn, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_YX", P2::yx(1, 1), wUnity, wn, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_XX_", P2::xx(1, 1), wUnity, wn, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_YY_", P2::yy(1, 1), wUnity, wn, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_XY_", P2::xy(1, 1), wUnity, wn, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_YX_", P2::yx(1, 1), wUnity, wn, qn, qn);
   }
   for (auto &corr:u1Q1)
   {
     std::array<std::string, 2> qn{corr.at(0), corr.at(1)};
     string corrName=corr.at(0)+"_"+corr.at(1); 
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_XX", P2::xx(1, 1), wSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_YY", P2::yy(1, 1), wSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_XY", P2::xy(1, 1), wSumWu, wy, qn, qn);
-    corrBuilder.AddCorrelationWithInternalReader(corrName+"_YX", P2::yx(1, 1), wSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_XX_", P2::xx(1, 1), wSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_YY_", P2::yy(1, 1), wSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_XY_", P2::xy(1, 1), wSumWu, wy, qn, qn);
+    corrBuilder.AddCorrelationWithInternalReader(corrName+"_YX_", P2::yx(1, 1), wSumWu, wy, qn, qn);
   }
 
   // ---------------- //
