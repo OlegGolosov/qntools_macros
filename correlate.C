@@ -30,6 +30,15 @@ vector <vector<string>> u1Q1=
   {"pionneg_y_RESCALED", "psd2_RECENTERED"},
   {"pionneg_pt_RESCALED", "psd3_RECENTERED"},
   {"pionneg_y_RESCALED", "psd3_RECENTERED"},
+
+  {"proton_RESCALED", "psd0_RECENTERED"},
+  {"proton_RESCALED", "psd1_RECENTERED"},
+  {"proton_RESCALED", "psd2_RECENTERED"},
+  {"proton_RESCALED", "psd3_RECENTERED"},
+  {"pionneg_RESCALED", "psd0_RECENTERED"},
+  {"pionneg_RESCALED", "psd1_RECENTERED"},
+  {"pionneg_RESCALED", "psd2_RECENTERED"},
+  {"pionneg_RESCALED", "psd3_RECENTERED"},
 };
 
 void correlate(string inputFiles="qn.root", string outputFile="corr.root")

@@ -15,7 +15,7 @@ void makeQvectors(string inputFiles="tree.root", string calibFilePath="qa.root",
     "centrality",                                             // kEvent
  //   "psdMod(X|Y|Phi|E|Id|Sub.)",        // kChannel 
     "psdMod(Phi|E|Sub0wo45|Sub1wo45|Sub2|Sub3*)",        // kChannel 
-    "tr(Pt|Y|Phi)|proton|pionneg", // kRecParticle  
+    "tr(Pt|Y|Phi|Good)|proton|pionneg", // kRecParticle  
     "sim(Pt|Eta|Phi|Pdg|MotherId)"                   // kSimParticle  
   };
   init(dd, outFilePath, calibFilePath);
@@ -84,6 +84,7 @@ void setupQvectors()
 
   man.AddDetector("proton_pt", track, "trPhi", "Ones", {axPt}, {1,2}, sumW);
   man.AddCutOnDetector("proton_pt", {"particleType"}, equal(kRecParticle), "recParticle");
+  man.AddCutOnDetector("proton_pt", {"trGood"}, equal(1), "trGood");
   man.AddCutOnDetector("proton_pt", {"proton"}, equal(1), "proton");
   man.AddCutOnDetector("proton_pt", {"trY"}, range(0, 1.2), "yCut");
   man.AddCorrectionOnQnVector("proton_pt", recentering);
@@ -95,6 +96,7 @@ void setupQvectors()
   
   man.AddDetector("proton_y", track, "trPhi", "Ones", {axY}, {1,2}, sumW);
   man.AddCutOnDetector("proton_y", {"particleType"}, equal(kRecParticle), "recParticle");
+  man.AddCutOnDetector("proton_y", {"trGood"}, equal(1), "trGood");
   man.AddCutOnDetector("proton_y", {"proton"}, equal(1), "proton");
   man.AddCutOnDetector("proton_y", {"trPt"}, range(0, 1.2), "ptCut");
   man.AddCorrectionOnQnVector("proton_y", recentering);
@@ -106,6 +108,7 @@ void setupQvectors()
   
   man.AddDetector("pionneg_pt", track, "trPhi", "Ones", {axPt}, {1,2}, sumW);
   man.AddCutOnDetector("pionneg_pt", {"particleType"}, equal(kRecParticle), "recParticle");
+  man.AddCutOnDetector("pionneg_pt", {"trGood"}, equal(1), "trGood");
   man.AddCutOnDetector("pionneg_pt", {"pionneg"}, equal(1), "pionneg");
   man.AddCutOnDetector("pionneg_pt", {"trY"}, range(0, 1.2), "yCut");
   man.AddCorrectionOnQnVector("pionneg_pt", recentering);
@@ -117,6 +120,7 @@ void setupQvectors()
   
   man.AddDetector("pionneg_y", track, "trPhi", "Ones", {axY}, {1,2}, sumW);
   man.AddCutOnDetector("pionneg_y", {"particleType"}, equal(kRecParticle), "recParticle");
+  man.AddCutOnDetector("pionneg_y", {"trGood"}, equal(1), "trGood");
   man.AddCutOnDetector("pionneg_y", {"pionneg"}, equal(1), "pionneg");
   man.AddCutOnDetector("pionneg_y", {"trPt"}, range(0, 1.2), "ptCut");
   man.AddCorrectionOnQnVector("pionneg_y", recentering);
@@ -125,4 +129,26 @@ void setupQvectors()
   man.AddHisto2D("pionneg_y", {{"trY", 300, -1., 3.}, {"trPt",  200, 0., 5.}}, "Ones");
   man.AddHisto2D("pionneg_y", {{"trPhi", 200, -3.15, 3.15}, {"trPt",  200, 0., 5.}}, "Ones");
   man.AddHisto2D("pionneg_y", {{"trPhi", 200, -3.15, 3.15}, {"trY", 300, -1., 3.}}, "Ones");
+
+  man.AddDetector("proton", track, "trPhi", "Ones", {axPt, axY}, {1,2}, sumW);
+  man.AddCutOnDetector("proton", {"particleType"}, equal(kRecParticle), "recParticle");
+  man.AddCutOnDetector("proton", {"trGood"}, equal(1), "trGood");
+  man.AddCutOnDetector("proton", {"proton"}, equal(1), "proton");
+  man.AddCorrectionOnQnVector("proton", recentering);
+  man.AddCorrectionOnQnVector("proton", twistRescale);
+  man.SetOutputQVectors("proton", {plain, recentered, twisted, rescaled});
+  man.AddHisto2D("proton", {{"trY", 300, -1., 3.}, {"trPt",  200, 0., 5.}}, "Ones");
+  man.AddHisto2D("proton", {{"trPhi", 200, -3.15, 3.15}, {"trPt",  200, 0., 5.}}, "Ones");
+  man.AddHisto2D("proton", {{"trPhi", 200, -3.15, 3.15}, {"trY", 300, -1., 3.}}, "Ones");
+  
+  man.AddDetector("pionneg", track, "trPhi", "Ones", {axPt, axY}, {1,2}, sumW);
+  man.AddCutOnDetector("pionneg", {"particleType"}, equal(kRecParticle), "recParticle");
+  man.AddCutOnDetector("pionneg", {"trGood"}, equal(1), "trGood");
+  man.AddCutOnDetector("pionneg", {"pionneg"}, equal(1), "pionneg");
+  man.AddCorrectionOnQnVector("pionneg", recentering);
+  man.AddCorrectionOnQnVector("pionneg", twistRescale);
+  man.SetOutputQVectors("pionneg", {plain, recentered, twisted, rescaled});
+  man.AddHisto2D("pionneg", {{"trY", 300, -1., 3.}, {"trPt",  200, 0., 5.}}, "Ones");
+  man.AddHisto2D("pionneg", {{"trPhi", 200, -3.15, 3.15}, {"trPt",  200, 0., 5.}}, "Ones");
+  man.AddHisto2D("pionneg", {{"trPhi", 200, -3.15, 3.15}, {"trY", 300, -1., 3.}}, "Ones");
 }
