@@ -103,7 +103,8 @@ void DefineVariableFilling(filteredDF &d, vector <vector<string>> &varNames)
 
 void processEvent(const ULong64_t eventId, const vector<float> vcEvent, const vector<float> vcModule, const vector<vector<float>> vcRecParticle, const vector<vector<float>> vcSimParticle)
 {
-  cout << "\r" << eventId;
+  if (eventId%1000==0)
+    cout << "\r" << eventId;
   man.Reset();
   double *vc = man.GetVariableContainer();
   for(int ivar=0; ivar<vcEvent.size();ivar++)
