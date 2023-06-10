@@ -39,7 +39,7 @@ const vector <vector <string>> drawOptions =
 };
 
 float markerSize = 1.5;
-float graphShift = 0.005;
+float graphShift = 0.000;
 float xAxisTitleSize = 0.05;
 float yAxisTitleSize = 0.05;
 
@@ -79,21 +79,14 @@ void R1_3S(string name, string c1, string c2, string c3)
     cout << __func__ << ": ERROR! correlation already defined: " << name << endl;
 }
 
-void R1_4S(string name, string c1, string c2, string c3="")
+void R1_4S(string name, string c1, string c2, float scale=1.)
 {
   Qn::DataContainerStatCalculate result;
   auto corr1=corrMap.at(c1);
   auto corr2=corrMap.at(c2);
   for(auto &c:corr1) c.SetWeightType(Qn::Stat::WeightType::REFERENCE);
   for(auto &c:corr2) c.SetWeightType(Qn::Stat::WeightType::REFERENCE);
-  if (c3=="")
-    result=2*corr1/corr2;
-  else
-  {
-    auto corr3=corrMap.at(c3);
-    for(auto &c:corr3) c.SetWeightType(Qn::Stat::WeightType::REFERENCE);
-    result=corr1*corr2/corr3;
-  }
+  result=scale*2*corr1/corr2;
   if (!corrMap.emplace(name, result).second)
     cout << __func__ << ": ERROR! correlation already defined: " << name << endl;
 }
@@ -155,7 +148,7 @@ void rebin(string pattern, Qn::AxisD axis, string comment)
   }
 }
 
-void unfold(string pattern, string axisName, string format="%2.0f")
+void unfold(string pattern, string axisName, string format="%02.0f")
 {
   if(verbose) cout << __func__ << ": " << endl;
   auto matches=findMatches<Qn::DataContainerStatCalculate>(pattern, corrMap);
@@ -171,6 +164,7 @@ void unfold(string pattern, string axisName, string format="%2.0f")
       string range=format+"_"+format;
       perBinName.append(Form(range.c_str(), axis.GetLowerBinEdge(i), axis.GetUpperBinEdge(i)));
       Qn::AxisD perBinAxis(axis.Name(), {axis.GetLowerBinEdge(i), axis.GetUpperBinEdge(i)});
+      if(verbose) cout << perBinName << "\t";
       if (!corrMap.emplace(perBinName, corr.Rebin(perBinAxis)).second)
         cout << __func__ << ": ERROR! correlation already defined: " << perBinName << endl;
     }
@@ -197,16 +191,16 @@ void merge(string pattern) //TODO: try solving with one regexp: merge those with
     cout << __func__ << ": ERROR! correlation already defined: " << mergedName << endl;
 }
 
-void fit(string pattern, const char *funcName, float xmin, float xmax, const char *option="qw")
+void fit(string pattern, const char *funcName, const char *option="qwr")
 {
   if(verbose) cout << __func__ << ": " << endl;
   auto matches=findMatches<Qn::DataContainerStatCalculate>(pattern, corrMap);
-  string postfix=Form("_fit_%s_%.1f_%.1f", funcName, xmin, xmax);
+  string postfix=Form("_fit_%s", funcName);
   for(auto &m:matches)
   {
     auto name=m.at(0);
     auto g=ToTGraph(corrMap.at(name));
-    g->Fit(funcName, option, "", xmin, xmax);
+    g->Fit(funcName, option, "");
     if (!graphMap.emplace(name+postfix, g).second)
       cout << __func__ << ": ERROR! fit already defined: " << name << endl;
   }

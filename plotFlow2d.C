@@ -2,7 +2,7 @@ bool verbose=false;
 
 #include "plotFlow.h"
 
-void plotFlow2d(const char *inputFileName="pbpb13_goodEvent_16_011.corr.root", const char *outputFileName="plots2d.root")
+void plotFlow2d(const char *inputFileName="pbpb13_goodEvent_16_011.corr.root", const char *outputFileName="plots2d.root", int pBeam=13)
 {
   cout << "START!\n";
   TFile inputFile(inputFileName);
@@ -14,21 +14,32 @@ void plotFlow2d(const char *inputFileName="pbpb13_goodEvent_16_011.corr.root", c
   R1_3S("R1_psd2_3S_Y", "psd1_RECENTERED_psd2_RECENTERED_YY_centrality", "psd2_RECENTERED_psd3_RECENTERED_YY_centrality", "psd1_RECENTERED_psd3_RECENTERED_YY_centrality"); 
   R1_3S("R1_psd3_3S_X", "psd2_RECENTERED_psd3_RECENTERED_XX_centrality", "psd1_RECENTERED_psd3_RECENTERED_XX_centrality", "psd1_RECENTERED_psd2_RECENTERED_XX_centrality"); 
   R1_3S("R1_psd3_3S_Y", "psd2_RECENTERED_psd3_RECENTERED_YY_centrality", "psd1_RECENTERED_psd3_RECENTERED_YY_centrality", "psd1_RECENTERED_psd2_RECENTERED_YY_centrality"); 
-  rebin("proton_RESCALED_psd._RECENTERED_(XX|YY|XY|YX)_centrality", {"trY", {0.8, 1.2}}, "4S");
-  rebin("proton_RESCALED_psd._RECENTERED_(XX|YY|XY|YX)_centrality_rebin_trY_4S", {"trPt", {0., 2.2}}, "4S");
-  project("proton_RESCALED_psd._RECENTERED_(XX|YY|XY|YX)_centrality_rebin_trY_4S_rebin_trPt_4S", {"centrality"});
-  R1_3S("R1_tpc_3S_X", "proton_RESCALED_psd1_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "proton_RESCALED_psd3_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "psd1_RECENTERED_psd3_RECENTERED_XX_centrality");
-  R1_3S("R1_tpc_3S_Y", "proton_RESCALED_psd1_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "proton_RESCALED_psd3_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "psd1_RECENTERED_psd3_RECENTERED_YY_centrality");
-  R1_3S("R1_psd1_3Sgap_X", "psd1_RECENTERED_psd3_RECENTERED_XX_centrality", "proton_RESCALED_psd1_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "proton_RESCALED_psd3_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"); 
-  R1_3S("R1_psd1_3Sgap_Y", "psd1_RECENTERED_psd3_RECENTERED_YY_centrality", "proton_RESCALED_psd1_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "proton_RESCALED_psd3_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"); 
-  R1_3S("R1_psd3_3Sgap_X", "psd1_RECENTERED_psd3_RECENTERED_XX_centrality", "proton_RESCALED_psd3_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "proton_RESCALED_psd1_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"); 
-  R1_3S("R1_psd3_3Sgap_Y", "psd1_RECENTERED_psd3_RECENTERED_YY_centrality", "proton_RESCALED_psd3_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "proton_RESCALED_psd1_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"); 
-  R1_4S("R1_psd1_4S_X", "psd1_RECENTERED_psd3_RECENTERED_XX_centrality", "R1_tpc_3S_X", "proton_RESCALED_psd3_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"); 
-  R1_4S("R1_psd1_4S_Y", "psd1_RECENTERED_psd3_RECENTERED_YY_centrality", "R1_tpc_3S_Y", "proton_RESCALED_psd3_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"); 
-  R1_4S("R1_psd3_4S_X", "psd1_RECENTERED_psd3_RECENTERED_XX_centrality", "R1_tpc_3S_X", "proton_RESCALED_psd1_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"); 
-  R1_4S("R1_psd3_4S_Y", "psd1_RECENTERED_psd3_RECENTERED_YY_centrality", "R1_tpc_3S_Y", "proton_RESCALED_psd1_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"); 
-  R1_4S("R1_psd2_4S_X", "proton_RESCALED_psd2_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "R1_tpc_3S_X"); 
-  R1_4S("R1_psd2_4S_Y", "proton_RESCALED_psd2_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "R1_tpc_3S_Y"); 
+  string part;
+  float scale;
+  if (pBeam==13)
+  {
+    rebin("proton_RESCALED_psd._RECENTERED_(XX|YY|XY|YX)_centrality", {"trY", {0.8, 1.2}}, "4S");
+    rebin("proton_RESCALED_psd._RECENTERED_(XX|YY|XY|YX)_centrality_rebin_trY_4S", {"trPt", {0.4, 2.2}}, "4S");
+    project("proton_RESCALED_psd._RECENTERED_(XX|YY|XY|YX)_centrality_rebin_trY_4S_rebin_trPt_4S", {"centrality"});
+    part="proton";
+    scale=1;
+  }
+  if (pBeam==30)
+  {
+    rebin("pionpos_RESCALED_psd._RECENTERED_(XX|YY|XY|YX)_centrality", {"trY", {0.4, 1.0}}, "4S");
+    rebin("pionpos_RESCALED_psd._RECENTERED_(XX|YY|XY|YX)_centrality_rebin_trY_4S", {"trPt", {0.4, 1.0}}, "4S");
+    project("pionpos_RESCALED_psd._RECENTERED_(XX|YY|XY|YX)_centrality_rebin_trY_4S_rebin_trPt_4S", {"centrality"});
+    part="pionpos";
+    scale=-1;
+  }
+  R1_3S("R1_tpc_3S_X", part+"_RESCALED_psd1_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", part+"_RESCALED_psd3_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "psd1_RECENTERED_psd3_RECENTERED_XX_centrality");
+  R1_3S("R1_tpc_3S_Y", part+"_RESCALED_psd1_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", part+"_RESCALED_psd3_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "psd1_RECENTERED_psd3_RECENTERED_YY_centrality");
+  R1_3S("R1_psd1_4S_X", "psd1_RECENTERED_psd3_RECENTERED_XX_centrality", part+"_RESCALED_psd1_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", part+"_RESCALED_psd3_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"); 
+  R1_3S("R1_psd1_4S_Y", "psd1_RECENTERED_psd3_RECENTERED_YY_centrality", part+"_RESCALED_psd1_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", part+"_RESCALED_psd3_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"); 
+  R1_3S("R1_psd3_4S_X", "psd1_RECENTERED_psd3_RECENTERED_XX_centrality", part+"_RESCALED_psd3_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", part+"_RESCALED_psd1_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"); 
+  R1_3S("R1_psd3_4S_Y", "psd1_RECENTERED_psd3_RECENTERED_YY_centrality", part+"_RESCALED_psd3_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", part+"_RESCALED_psd1_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"); 
+  R1_4S("R1_psd2_4S_X", part+"_RESCALED_psd2_RECENTERED_XX_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "R1_tpc_3S_X", scale); 
+  R1_4S("R1_psd2_4S_Y", part+"_RESCALED_psd2_RECENTERED_YY_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality", "R1_tpc_3S_Y", scale); 
 
   for (auto &part:{"pionneg", "pionpos", "proton"})
     for (auto &ref:{"psd1", "psd2", "psd3"})
@@ -37,28 +48,29 @@ void plotFlow2d(const char *inputFileName="pbpb13_goodEvent_16_011.corr.root", c
            Form("%s_RESCALED_%s_RECENTERED_%s%s_centrality", part, ref, comp, comp), 
            Form("R1_%s_4S_%s", ref, comp)); 
 
-  merge("v1_proton_psd1_4S_(X|Y)");
-  merge("v1_proton_psd2_4S_(X|Y)");
-  merge("v1_proton_psd3_4S_(X|Y)");
+//  merge("v1_proton_psd1_4S_(X|Y)");
+//  merge("v1_proton_psd2_4S_(X|Y)");
+//  merge("v1_proton_psd3_4S_(X|Y)");
   merge("v1_proton_(psd1|psd2|psd3)_4S_X");
   merge("v1_proton_(psd1|psd2|psd3)_4S_Y");
-  merge("v1_proton_(psd1|psd2|psd3)_4S_(X|Y)");
+//  merge("v1_proton_(psd1|psd2|psd3)_4S_(X|Y)");
 
-  merge("v1_pionneg_psd1_4S_(X|Y)");
-  merge("v1_pionneg_psd2_4S_(X|Y)");
-  merge("v1_pionneg_psd3_4S_(X|Y)");
+//  merge("v1_pionneg_psd1_4S_(X|Y)");
+//  merge("v1_pionneg_psd2_4S_(X|Y)");
+//  merge("v1_pionneg_psd3_4S_(X|Y)");
   merge("v1_pionneg_(psd1|psd2|psd3)_4S_X");
   merge("v1_pionneg_(psd1|psd2|psd3)_4S_Y");
-  merge("v1_pionneg_(psd1|psd2|psd3)_4S_(X|Y)");
+//  merge("v1_pionneg_(psd1|psd2|psd3)_4S_(X|Y)");
 
-  merge("v1_pionpos_psd1_4S_(X|Y)");
-  merge("v1_pionpos_psd2_4S_(X|Y)");
-  merge("v1_pionpos_psd3_4S_(X|Y)");
+//  merge("v1_pionpos_psd1_4S_(X|Y)");
+//  merge("v1_pionpos_psd2_4S_(X|Y)");
+//  merge("v1_pionpos_psd3_4S_(X|Y)");
   merge("v1_pionpos_(psd1|psd2|psd3)_4S_X");
   merge("v1_pionpos_(psd1|psd2|psd3)_4S_Y");
-  merge("v1_pionpos_(psd1|psd2|psd3)_4S_(X|Y)");
+//  merge("v1_pionpos_(psd1|psd2|psd3)_4S_(X|Y)");
 
-  rebin("v1_.*", {"centrality",{0,10,25,45,60}}, "wide");
+  vector<double> centBinsWide={0,10,25,45,60};
+  rebin("v1_.*", {"centrality", centBinsWide}, "wide");
 
   unfold("v1.*", "centrality");
   rebin("v1_(pionneg|pionpos|proton)_(.*)_4S_(X|Y|X_Y)_unfold_centrality_(.._..)", {"trPt",{0,2.2}}, "0_2.2");
@@ -71,46 +83,61 @@ void plotFlow2d(const char *inputFileName="pbpb13_goodEvent_16_011.corr.root", c
   project("v1_.*_rebin_trPt_(pion|proton)_unfold_trPt.*", {"trY"});
   project("v1_.*_rebin_trY_(pion|proton)_unfold_trY.*", {"trPt"});
   project("v1_.*_rebin_trPt_0_2.2", {"trY"});
-  fit("v1_(pionneg|pionpos|proton)_psd1_psd2_psd3_4S_X_unfold_centrality_.*_rebin_trPt_0_2.2_proj_trY", "pol1", -0.4, 0.4);
-  projectFitParameters("v1_pionneg_psd1_psd2_psd3_4S_X_unfold_(centrality)_(.*)_(.*)_rebin_trPt_0_2.2_proj_trY_(fit_pol1)_-0.4_0.4");
-  projectFitParameters("v1_pionpos_psd1_psd2_psd3_4S_X_unfold_(centrality)_(.*)_(.*)_rebin_trPt_0_2.2_proj_trY_(fit_pol1)_-0.4_0.4");
-  projectFitParameters("v1_proton_psd1_psd2_psd3_4S_X_unfold_(centrality)_(.*)_(.*)_rebin_trPt_0_2.2_proj_trY_(fit_pol1)_-0.4_0.4");
+  auto fpol3=new TF1("fpol3","[0]+[1]*x+[2]*x*x*x", 0, 1.0);
+  fit("v1_(pionneg|pionpos|proton)_psd1_psd2_psd3_4S_X_unfold_centrality_.*_rebin_trPt_0_2.2_proj_trY", "fpol3");
+  projectFitParameters("v1_pionneg_psd1_psd2_psd3_4S_X_unfold_(centrality)_(.*)_(.*)_rebin_trPt_0_2.2_proj_trY_(fit_fpol3)");
+  projectFitParameters("v1_pionpos_psd1_psd2_psd3_4S_X_unfold_(centrality)_(.*)_(.*)_rebin_trPt_0_2.2_proj_trY_(fit_fpol3)");
+  projectFitParameters("v1_proton_psd1_psd2_psd3_4S_X_unfold_(centrality)_(.*)_(.*)_rebin_trPt_0_2.2_proj_trY_(fit_fpol3)");
+//  makeMG({"v1_proton_psd1_psd2_psd3_4S_X_unfold_centrality_(.._..)_rebin_trPt_0_2.2_proj_trY_fit_fpol3"})->Draw("apl");
 
   TFile outputFile(outputFileName, "recreate");
   writeMG({"psd1_RECENTERED_psd2_RECENTERED_(XX|YY|XY|YX)_centrality"});
   writeMG({"psd2_RECENTERED_psd3_RECENTERED_(XX|YY|XY|YX)_centrality"});
   writeMG({"psd1_RECENTERED_psd3_RECENTERED_(XX|YY|XY|YX)_centrality"});
-  writeMG({"proton_RESCALED_psd1_RECENTERED_(XX|YY|XY|YX)_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"});
-  writeMG({"proton_RESCALED_psd3_RECENTERED_(XX|YY|XY|YX)_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"});
+  writeMG({part+"_RESCALED_psd1_RECENTERED_(XX|YY|XY|YX)_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"});
+  writeMG({part+"_RESCALED_psd3_RECENTERED_(XX|YY|XY|YX)_centrality_rebin_trY_4S_rebin_trPt_4S_proj_centrality"});
   writeMG({"R1_(psd.)_(3S)_(X)", "R1_(psd.)_(3S)_(Y)"});
   writeMG({"R1_(psd.)_(4S)_(X)", "R1_(psd.)_(4S)_(Y)"});
-  writeMG({"R1_(psd1|psd3)_(4S)_(X)", "R1_(psd1|psd3)_(4S)_(Y)", "R1_(psd1|psd3)_(3Sgap)_(X)", "R1_(psd1|psd3)_(3Sgap)_(Y)"});
+  writeMG({"R1_tpc_3S_(X)", "R1_tpc_3S_(Y)"});
+  writeMG({"R1_(psd.)_(4S)_(X)", "R1_(psd.)_(4S)_(Y)", "R1_(psd.)_(3S)_(X)", "R1_(psd.)_(3S)_(Y)"});
 
 //  writeMG({"v1_proton_psd1_psd2_psd3_4S_X_rebin_centrality_wide_unfold_centrality_(.._..)_rebin_trY_0_1.2_proj_trPt"});
 //  writeMG({"v1_proton_psd1_psd2_psd3_4S_X_rebin_centrality_wide_unfold_centrality_(.._..)_rebin_trPt_0_2.2_proj_trY"});
 //  writeMG({"v1_proton_psd1_psd2_psd3_4S_(X|Y)_rebin_centrality_wide_unfold_centrality_10_25_rebin_trY_0_1.2_proj_trPt"});
 //  writeMG({"v1_proton_(psd.)_4S_X_Y_rebin_centrality_wide_unfold_centrality_10_25_rebin_trY_0_1.2_proj_trPt"});
-  writeMG({"v1_proton_psd1_psd2_psd3_4S_X_Y_rebin_centrality_wide_unfold_centrality_10_25_rebin_trPt_proton_unfold_trPt_(.*)_proj_trY"});
-  writeMG({"v1_proton_psd1_psd2_psd3_4S_X_Y_rebin_centrality_wide_unfold_centrality_10_25_rebin_trY_proton_unfold_trY_(.*)_proj_trPt"});
-  writeMG({"v1_proton_psd1_psd2_psd3_4S_X_unfold_centrality_(.._..)_rebin_trPt_0_2.2_proj_trY_fit_pol1_-0.4_0.4"});
+  for (int i=1; i<centBinsWide.size(); i++)
+  {
+    const char *cent=Form("%02.0f_%02.0f", centBinsWide.at(i-1), centBinsWide.at(i));
+    writeMG({Form("v1_proton_psd1_psd2_psd3_4S_X_rebin_centrality_wide_unfold_centrality_%s_rebin_trPt_proton_unfold_trPt_(.*)_proj_trY", cent)});
+    writeMG({Form("v1_proton_psd1_psd2_psd3_4S_X_rebin_centrality_wide_unfold_centrality_%s_rebin_trY_proton_unfold_trY_(.*)_proj_trPt", cent)});
+  }
+  writeMG({"v1_proton_psd1_psd2_psd3_4S_X_unfold_centrality_(.._..)_rebin_trPt_0_2.2_proj_trY_fit_fpol3"});
 
 //  writeMG({"v1_pionneg_psd1_psd2_psd3_4S_X_rebin_centrality_wide_unfold_centrality_(.._..)_rebin_trY_0_1.2_proj_trPt"});
 //  writeMG({"v1_pionneg_psd1_psd2_psd3_4S_X_rebin_centrality_wide_unfold_centrality_(.._..)_rebin_trPt_0_2.2_proj_trY"});
 //  writeMG({"v1_pionneg_psd1_psd2_psd3_4S_(X|Y)_rebin_centrality_wide_unfold_centrality_10_25_rebin_trY_0_1.2_proj_trPt"});
 //  writeMG({"v1_pionneg_(psd.)_4S_X_Y_rebin_centrality_wide_unfold_centrality_10_25_rebin_trY_0_1.2_proj_trPt"});
-  writeMG({"v1_pionneg_psd1_psd2_psd3_4S_X_Y_rebin_centrality_wide_unfold_centrality_10_25_rebin_trPt_pion_unfold_trPt_(.*)_proj_trY"});
-  writeMG({"v1_pionneg_psd1_psd2_psd3_4S_X_Y_rebin_centrality_wide_unfold_centrality_10_25_rebin_trY_pion_unfold_trY_(.*)_proj_trPt"});
-  writeMG({"v1_pionneg_psd1_psd2_psd3_4S_X_unfold_centrality_(.._..)_rebin_trPt_0_2.2_proj_trY_fit_pol1_-0.4_0.4"});
+  for (int i=1; i<centBinsWide.size(); i++)
+  {
+    const char *cent=Form("%02.0f_%02.0f", centBinsWide.at(i-1), centBinsWide.at(i));
+    writeMG({Form("v1_pionneg_psd1_psd2_psd3_4S_X_rebin_centrality_wide_unfold_centrality_%s_rebin_trPt_pion_unfold_trPt_(.*)_proj_trY", cent)});
+    writeMG({Form("v1_pionneg_psd1_psd2_psd3_4S_X_rebin_centrality_wide_unfold_centrality_%s_rebin_trY_pion_unfold_trY_(.*)_proj_trPt", cent)});
+  }
+  writeMG({"v1_pionneg_psd1_psd2_psd3_4S_X_unfold_centrality_(.._..)_rebin_trPt_0_2.2_proj_trY_fit_fpol3"});
 
 //  writeMG({"v1_pionpos_psd1_psd2_psd3_4S_X_rebin_centrality_wide_unfold_centrality_(.._..)_rebin_trY_0_1.2_proj_trPt"});
 //  writeMG({"v1_pionpos_psd1_psd2_psd3_4S_X_rebin_centrality_wide_unfold_centrality_(.._..)_rebin_trPt_0_2.2_proj_trY"});
 //  writeMG({"v1_pionpos_psd1_psd2_psd3_4S_(X|Y)_rebin_centrality_wide_unfold_centrality_10_25_rebin_trY_0_1.2_proj_trPt"});
 //  writeMG({"v1_pionpos_(psd.)_4S_X_Y_rebin_centrality_wide_unfold_centrality_10_25_rebin_trY_0_1.2_proj_trPt"});
-  writeMG({"v1_pionpos_psd1_psd2_psd3_4S_X_Y_rebin_centrality_wide_unfold_centrality_10_25_rebin_trPt_pion_unfold_trPt_(.*)_proj_trY"});
-  writeMG({"v1_pionpos_psd1_psd2_psd3_4S_X_Y_rebin_centrality_wide_unfold_centrality_10_25_rebin_trY_pion_unfold_trY_(.*)_proj_trPt"});
-  writeMG({"v1_pionpos_psd1_psd2_psd3_4S_X_unfold_centrality_(.._..)_rebin_trPt_0_2.2_proj_trY_fit_pol1_-0.4_0.4"});
+  for (int i=1; i<centBinsWide.size(); i++)
+  {
+    const char *cent=Form("%02.0f_%02.0f", centBinsWide.at(i-1), centBinsWide.at(i));
+    writeMG({Form("v1_pionpos_psd1_psd2_psd3_4S_X_rebin_centrality_wide_unfold_centrality_%s_rebin_trPt_pion_unfold_trPt_(.*)_proj_trY", cent)});
+    writeMG({Form("v1_pionpos_psd1_psd2_psd3_4S_X_rebin_centrality_wide_unfold_centrality_%s_rebin_trY_pion_unfold_trY_(.*)_proj_trPt", cent)});
+  }
+  writeMG({"v1_pionpos_psd1_psd2_psd3_4S_X_unfold_centrality_(.._..)_rebin_trPt_0_2.2_proj_trY_fit_fpol3"});
 
-  writeMG({"v1_(pionneg|pionpos|proton)_psd1_psd2_psd3_4S_X_unfold_centrality_rebin_trPt_0_2.2_proj_trY_fit_pol1_-0.4_0.4_par1"});
+  writeMG({"v1_(pionneg|pionpos|proton)_psd1_psd2_psd3_4S_X_unfold_centrality_rebin_trPt_0_2.2_proj_trY_fit_fpol3_par1"});
 
 //  for (auto &part:{"proton", "pionneg", "pionpos"})
 //    for (auto &ref1:{"psd1", "psd2"})
