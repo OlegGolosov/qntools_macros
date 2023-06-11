@@ -161,7 +161,7 @@ void unfold(string pattern, string axisName, string format="%02.0f")
     for (int i=0;i<axis.GetNBins();i++)
     {
       auto perBinName=name;
-      string range=format+"_"+format;
+      string range=format+"-"+format;
       perBinName.append(Form(range.c_str(), axis.GetLowerBinEdge(i), axis.GetUpperBinEdge(i)));
       Qn::AxisD perBinAxis(axis.Name(), {axis.GetLowerBinEdge(i), axis.GetUpperBinEdge(i)});
       if(verbose) cout << perBinName << "\t";
@@ -268,7 +268,7 @@ void projectFitParameters(string pattern)
       }
     }
   }
-  auto gname=regex_replace(pattern, regex("_\\(\\.\\*\\)_\\(\\.\\*\\)"), "");
+  auto gname=regex_replace(pattern, regex("_\\(\\.\\*\\)-\\(\\.\\*\\)"), "");
   gname=regex_replace(gname, regex("\\(|\\||\\)"), "");
   for (int i=0; i<nPars;i++)
   {
@@ -285,7 +285,14 @@ string makeCommonName(vector<string> patterns={"R1_(psd.)_(4S)_(X)", "R1_(psd.)_
 {
   regex r1("_?(\\([^)]*\\))");
   regex r2("(\\([^)]*\\))");
-  string common=regex_replace(patterns.at(0), r1, "");
+  string firstPattern;
+  for (auto &p:patterns)
+    if(p.size()>0)
+    {
+      firstPattern=p;
+      break;
+    }
+  string common=regex_replace(firstPattern, r1, "");
   string diff="";
   for(auto &p:patterns)
   {
