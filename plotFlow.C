@@ -73,34 +73,32 @@ void plotFlow(const char *inputFileName="pbpb13_goodEvent_16_011.corr.root", con
 
   vector<double> centBinsWide={0,10,25,45,60};
   rebin("v1_.*", {"centrality", centBinsWide}, "wide");
+  rebin("v1_.*_(X|Y)", {"centrality", {10,35}}, "star");
   unfold("v1.*", "centrality");
 
   Qn::AxisD axPt_proton, axY_proton, axPt_pion, axY_pion;
   vector<double> ptBins_dv1dy={0., 0.6, 1.0, 1.8};
   if(pBeam==13)
   {
-    axY_proton={"trY",{0.0, 0.2, 0.4, 0.6, 1.0, 1.2, 1.4, 1.6, 2.2}};
-    axPt_proton={"trPt",{0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.4, 1.8}};
-    axY_pion={"trY",{0.0, 0.4, 0.8, 1.2, 2.0}};
+    //axY_proton={"trY",{0.0, 0.2, 0.4, 0.6, 1.0, 1.2, 1.4, 1.6, 2.2}};
+    //axPt_proton={"trPt",{0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.4, 1.8}};
+    //axY_pion={"trY",{0.0, 0.4, 0.8, 1.2, 2.0}};
+    ptBins_dv1dy={0., 0.4, 2.2};
+    axY_proton={"trY",{0.0, 0.6, 1.0, 1.2, 1.4, 1.6, 2.2}};
+    axPt_proton={"trPt",{0.0, 0.6, 1.0, 1.4, 1.8}};
+    axY_pion={"trY",{0.0, 0.6, 1.0, 2.0}};
     axPt_pion={"trPt",{0.0, 0.2, 0.4, 0.6, 1.0, 1.8}};
   }
-  if(pBeam==30)
-  {
-    axY_proton={"trY",{0.0, 0.2, 0.4, 0.6, 1.0, 1.2, 1.4, 1.6, 2.2}};
-    axPt_proton={"trPt",{0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.4, 1.8}};
-    axY_pion={"trY",{0.0, 0.4, 0.8, 1.2, 2.0}};
-    axPt_pion={"trPt",{0.0, 0.2, 0.4, 0.6, 1.0, 1.8}};
-  }
-  if(pBeam==41)
+  if(pBeam==30 || pBeam==41)
   {
     ptBins_dv1dy={0., 0.4, 2.2};
     axY_proton={"trY",{0.0, 0.6, 1.0, 1.2, 1.4, 1.6, 2.2}};
-    axPt_proton={"trPt",{0.0, 0.6, 0.8, 1.0, 1.4, 1.8}};
-    axY_pion={"trY",{0.0, 0.4, 0.8, 1.2, 2.0}};
-    axPt_pion={"trPt",{0.0, 0.2, 0.4, 1.0, 1.8}};
+    axPt_proton={"trPt",{0.0, 0.6, 1.0, 1.4, 1.8}};
+    axY_pion={"trY",{0.0, 0.6, 1.0, 2.0}};
+    axPt_pion={"trPt",{0.0, 0.2, 0.4, 0.6, 1.0, 1.8}};
   }
 
-  rebin("v1_(pionneg|pionpos|proton)_(.*)_(X|Y|X_Y)_unfold_centrality_(..-..)", {"trPt",{0.4,2.2}}, "star");
+  rebin("v1_(pionneg|pionpos|proton)_(.*)_(X|Y|X_Y)_rebin_centrality_star_unfold_centrality_(..-..)", {"trPt",{0.4,2.2}}, "star");
   rebin("v1_(pionneg|pionpos|proton)_(.*)_(X|Y|X_Y)_unfold_centrality_(..-..)", {"trPt", ptBins_dv1dy}, "dv1dy");
   rebin("v1_proton_(.*)_(X|Y|X_Y)_rebin_centrality_wide_unfold_centrality_(..-..)", axY_proton,  "proton");
   rebin("v1_proton_(.*)_(X|Y|X_Y)_rebin_centrality_wide_unfold_centrality_(..-..)", axPt_proton, "proton");
@@ -115,10 +113,11 @@ void plotFlow(const char *inputFileName="pbpb13_goodEvent_16_011.corr.root", con
   project("v1_.*_rebin_trY_(pionneg|pionpos|proton)_unfold_trY.*", {"trPt"});
   project("v1_.*_rebin_trPt_star", {"trY"});
   auto fpol3=new TF1("fpol3","[0]+[1]*x+[2]*x*x*x", -0.5, 1.5);
-  fit(Form("v1_(pionneg|pionpos|proton)_%s_%s_unfold_centrality_.*_rebin_trPt_star_proj_trY", ref, comp), "fpol3");
-  projectFitParameters(Form("v1_pionneg_%s_%s_unfold_(centrality)_(.*)-(.*)_rebin_trPt_star_proj_trY_(fit_fpol3)", ref, comp));
-  projectFitParameters(Form("v1_pionpos_%s_%s_unfold_(centrality)_(.*)-(.*)_rebin_trPt_star_proj_trY_(fit_fpol3)", ref, comp));
-  projectFitParameters(Form("v1_proton_%s_%s_unfold_(centrality)_(.*)-(.*)_rebin_trPt_star_proj_trY_(fit_fpol3)", ref, comp));
+  auto fpol3star=new TF1("fpol3star","[0]+[1]*x+[2]*x*x*x", 0, 1.5);
+  fit(Form("v1_(pionneg|pionpos|proton)_%s_%s_rebin_centrality_star_unfold_centrality_.*_rebin_trPt_star_proj_trY", ref, comp), "fpol3star");
+  projectFitParameters(Form("v1_pionneg_%s_%s_rebin_centrality_star_unfold_(centrality)_(.*)-(.*)_rebin_trPt_star_proj_trY_(fit_fpol3star)", ref, comp));
+  projectFitParameters(Form("v1_pionpos_%s_%s_rebin_centrality_star_unfold_(centrality)_(.*)-(.*)_rebin_trPt_star_proj_trY_(fit_fpol3star)", ref, comp));
+  projectFitParameters(Form("v1_proton_%s_%s_rebin_centrality_star_unfold_(centrality)_(.*)-(.*)_rebin_trPt_star_proj_trY_(fit_fpol3star)", ref, comp));
   for (int i=1; i<ptBins_dv1dy.size();i++)
   {
     const char *pt=Form("%.1f-%.1f", ptBins_dv1dy.at(i-1), ptBins_dv1dy.at(i));
@@ -154,10 +153,17 @@ void plotFlow(const char *inputFileName="pbpb13_goodEvent_16_011.corr.root", con
       writeMG({Form("v1_%s_%s_%s_unfold_centrality_(..-..)_rebin_trPt_dv1dy_unfold_trPt_%s_proj_trY_fit_fpol3", part, ref, comp, pt)});
     }
 
-    writeMG({Form("v1_%s_%s_%s_unfold_centrality_(..-..)_rebin_trPt_star_proj_trY_fit_fpol3", part, ref, comp)});
+    writeMG({Form("v1_%s_%s_%s_rebin_centrality_star_unfold_centrality_(..-..)_rebin_trPt_star_proj_trY_fit_fpol3star", part, ref, comp)});
     writeMG({Form("v1_%s_%s_%s_unfold_centrality_rebin_trPt_dv1dy_unfold_trPt_(.*)_proj_trY_fit_fpol3_par1", part, ref, comp)});
   }
-  writeMG({Form("v1_(pionneg|pionpos|proton)_%s_%s_unfold_centrality_rebin_trPt_star_proj_trY_fit_fpol3_par1", ref, comp)});
+
+  for (int i=1; i<ptBins_dv1dy.size();i++)
+  {
+    const char *pt=Form("%.1f-%.1f", ptBins_dv1dy.at(i-1), ptBins_dv1dy.at(i));
+    writeMG({Form("v1_(pionneg|pionpos|proton)_%s_%s_unfold_centrality_rebin_trPt_dv1dy_unfold_trPt_%s_proj_trY_fit_fpol3_par1", ref, comp, pt)});
+  }
+
+  writeMG({Form("v1_(pionneg|pionpos|proton)_%s_%s_rebin_centrality_star_unfold_centrality_rebin_trPt_star_proj_trY_fit_fpol3star_par1", ref, comp)});
 
 
   outputFile.Close();

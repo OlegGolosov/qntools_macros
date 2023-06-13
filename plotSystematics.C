@@ -3,7 +3,7 @@ void shiftGraphsX(TMultiGraph *mg, float dx=0.0)
   if (!mg->GetListOfGraphs() || dx==0.) return;
   for (int ig=1; ig < mg->GetListOfGraphs()->GetEntries(); ++ig) 
   {
-    auto g=dynamic_cast<TGraph*>(mg->GetListOfGraphs()->At(ig));
+    auto g=dynamic_cast<TGraphMultiErrors*>(mg->GetListOfGraphs()->At(ig));
     auto *x=g->GetX();
     auto n=g->GetN();
     float shift=ig*dx*(x[n-1]-x[0]);
@@ -12,6 +12,20 @@ void shiftGraphsX(TMultiGraph *mg, float dx=0.0)
   }
 }
 
+map<string,string> axisTitles=
+{
+  {"R1","R_{1}"},
+  {"v1","v_{1}"},
+  {"ps","#LTQQ#GT"},
+  {"pr","#LTQQ#GT"},
+  {"pi","#LTQQ#GT"},
+  {"trPt","p_{T} (GeV/#it{c})"},
+  {"trY","#it{y}"},
+  {"centrality", "Centrality, %"},
+  {"fit_fpol3", "dv_{1}/d#it{y}"},
+  {"fit_fpol3star", "dv_{1}/d#it{y}"},
+};
+
 void plotSystematics(string fInNameList="syst.list", string fOutName="out.root")
 {
   float systWidth=0.005, graphShift=0.005;
@@ -19,7 +33,8 @@ void plotSystematics(string fInNameList="syst.list", string fOutName="out.root")
   ifstream inFileNames(fInNameList);
   string line;
   while(getline(inFileNames, line))
-    files.push_back(new TFile(line.c_str())); 
+    if(line.at(0)!='#')
+      files.push_back(new TFile(line.c_str())); 
   vector<TList*> lists;
   for (auto &f:files)
     lists.push_back(f->GetListOfKeys());
@@ -46,14 +61,23 @@ void plotSystematics(string fInNameList="syst.list", string fOutName="out.root")
           auto delta=fabs(gIn->GetPointY(p)-gVar->GetPointY(p));
           auto deltaSqErr=fabs(gIn->GetErrorY(p)*gIn->GetErrorY(p)-gVar->GetErrorY(p)*gVar->GetErrorY(p));
           auto significance=delta/sqrt(deltaSqErr);
-          if(significance>0.7)
-            systErr.at(p)+=delta*delta;
+//          if(significance>0.7)
+//            systErr.at(p)+=delta*delta;
+          if(systErr.at(p)<delta)
+            systErr.at(p)=delta;
         }
       }
-      for(int p=0;p<np;p++)
-        systErr.at(p)=sqrt(systErr.at(p));
+//      for(int p=0;p<np;p++)
+//        systErr.at(p)=sqrt(systErr.at(p));
 
       auto gOut=new TGraphMultiErrors(gIn->GetN(), gIn->GetX(), gIn->GetY(), ex.data(), ex.data(), gIn->GetEY(), gIn->GetEY());
+      gOut->SetTitle(gIn->GetTitle());
+      gOut->SetName(gIn->GetName());
+      string titleX=gIn->GetXaxis()->GetTitle();
+      string titleY=gIn->GetYaxis()->GetTitle();
+      if (titleX.size()>0) gOut->GetXaxis()->SetTitle(axisTitles.at(titleX).c_str());
+      if (titleY.size()>0) gOut->GetYaxis()->SetTitle(axisTitles.at(titleY).c_str());
+      gOut->SetName(gIn->GetName());
       gOut->AddYError(systErr.size(), systErr.data(), systErr.data());
       gOut->SetLineColor(gIn->GetLineColor());
       gOut->SetLineStyle(gIn->GetLineStyle());
@@ -63,19 +87,25 @@ void plotSystematics(string fInNameList="syst.list", string fOutName="out.root")
       gOut->SetMarkerSize(gIn->GetMarkerSize());
       gOut->SetFillColor(gIn->GetFillColor());
       gOut->SetFillStyle(gIn->GetFillStyle());
-      gOut->GetAttLine(0)->SetLineColor(gOut->GetLineColor());
-      //gOut->GetAttLine(0)->SetLineWidth(gOut->GetLineWidth());
+      gOut->GetAttLine(0)->SetLineColor(gIn->GetLineColor());
+      //gOut->GetAttLine(0)->SetLineWidth(gIn->GetLineWidth());
       gOut->GetAttLine(0)->SetLineWidth(2);
-      gOut->GetAttLine(1)->SetLineWidth(0);
-      gOut->GetAttFill(1)->SetFillColor(gOut->GetLineColor());
-      gOut->GetAttFill(1)->SetFillColorAlpha(gOut->GetLineColor(), 0.5);
-      gOut->GetAttFill(1)->SetFillStyle(3001);
-      mgOut->Add(gOut, "PS ; ; 5 s=1");
+      gOut->GetAttLine(1)->SetLineWidth(1);
+      gOut->GetAttLine(1)->SetLineColor(gIn->GetLineColor());
+      gOut->GetAttFill(1)->SetFillColor(gIn->GetLineColor());
+      gOut->GetAttFill(1)->SetFillColorAlpha(gIn->GetLineColor(), 0.9);
+      gOut->GetAttFill(1)->SetFillStyle(0);
+      mgOut->Add(gOut, "PS ; Z; 5 s=1");
       shiftGraphsX(mgOut, graphShift);
     }
+    string titleX=mgIn->GetXaxis()->GetTitle();
+    string titleY=mgIn->GetYaxis()->GetTitle();
+    if (titleX.size()>0) mgOut->GetXaxis()->SetTitle(axisTitles.at(titleX).c_str());
+    if (titleY.size()>0) mgOut->GetYaxis()->SetTitle(axisTitles.at(titleY).c_str());
     mgOut->Write();
-//    if(i==10)
+//    if(i==13)
 //    {
+//      mgOut->GetYaxis()->SetRangeUser(-0.08,0.04);
 //      mgOut->Draw("a");
 //      break;
 //    }
