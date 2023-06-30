@@ -61,17 +61,20 @@ void plotSystematics(string fInNameList="syst.list", string fOutName="out.root")
           auto delta=fabs(gIn->GetPointY(p)-gVar->GetPointY(p));
           auto deltaSqErr=fabs(gIn->GetErrorY(p)*gIn->GetErrorY(p)-gVar->GetErrorY(p)*gVar->GetErrorY(p));
           auto significance=delta/sqrt(deltaSqErr);
-//          if(significance>0.7)
-//            systErr.at(p)+=delta*delta;
-          if(systErr.at(p)<delta)
-            systErr.at(p)=delta;
+          if(systErr.at(p)<delta)//max
+            systErr.at(p)=delta;//max
+//          if(significance>0.7)//rms
+//            systErr.at(p)+=delta*delta;//rms
         }
       }
-//      for(int p=0;p<np;p++)
-//        systErr.at(p)=sqrt(systErr.at(p));
+//      for(int p=0;p<np;p++)//rms
+//        systErr.at(p)=sqrt(systErr.at(p));//rms
 
       auto gOut=new TGraphMultiErrors(gIn->GetN(), gIn->GetX(), gIn->GetY(), ex.data(), ex.data(), gIn->GetEY(), gIn->GetEY());
-      gOut->SetTitle(gIn->GetTitle());
+      string gTitle=gIn->GetTitle();
+      gTitle=regex_replace(gTitle,regex("pionneg"),"#pi^{-}");
+      gTitle=regex_replace(gTitle,regex("pionpos"),"#pi^{+}");
+      gOut->SetTitle(gTitle.c_str());
       gOut->SetName(gIn->GetName());
       string titleX=gIn->GetXaxis()->GetTitle();
       string titleY=gIn->GetYaxis()->GetTitle();

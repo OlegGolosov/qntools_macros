@@ -191,7 +191,7 @@ void merge(string pattern) //TODO: try solving with one regexp: merge those with
     cout << __func__ << ": ERROR! correlation already defined: " << mergedName << endl;
 }
 
-void fit(string pattern, const char *funcName, const char *option="qwr")
+void fit(string pattern, const char *funcName, const char *option="qr")
 {
   if(verbose) cout << __func__ << ": " << endl;
   auto matches=findMatches<Qn::DataContainerStatCalculate>(pattern, corrMap);

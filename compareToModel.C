@@ -19,15 +19,15 @@ TGraphErrors* flow(TProfile3D *p3orig, float min, float max, float centMin=10, f
   }
   auto g=new TGraphErrors(x.size()-1, x.data(), y.data(), 0, ey.data());
   g->SetName("g_"+name);
-//  g->SetFillStyle(3002);
-//  g->SetFillColor(color);
+  g->SetFillStyle(3002);
+  g->SetFillColor(color);
   g->SetMarkerColor(color);
   g->SetLineColor(color);
   g->SetLineWidth(2);
   return g;  
 }
 
-void plotModels(string dataFileName="data.root", string modelFileName="model.root", string compFileName="comp.root")
+void compareToModel(string dataFileName="data.root", string modelFileName="model.root", string compFileName="comp.root")
 {
   smatch sm;
   regex_search(modelFileName, sm, regex("pbpb(..)_"));
@@ -102,7 +102,7 @@ void plotModels(string dataFileName="data.root", string modelFileName="model.roo
     for (int i=1;i<bins.size();i++)
     {
 //      cout << bins.at(i-1) << "\t" << bins.at(i) << endl;
-      mg->Add(flow(p3, bins.at(i-1), bins.at(i), cent1, cent2, profileAxis, colors.at(i-1)), "l");
+      mg->Add(flow(p3, bins.at(i-1), bins.at(i), cent1, cent2, profileAxis, colors.at(i-1)), "e3");
     }
     mg->Write();
   } 
