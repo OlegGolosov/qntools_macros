@@ -1,5 +1,29 @@
 const char *boldRed="\033[1;31m%s\033[0m"; // https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
-                                           //
+                                           
+map<string,string> axisTitles=
+{
+  {"R1","R_{1}"},
+  {"v1","v_{1}"},
+  {"ps","#LTQQ#GT"},
+  {"pr","#LTQQ#GT"},
+  {"pi","#LTQQ#GT"},
+  {"trY","#it{y}"},
+  {"trPt","p_{T} (GeV/#it{c})"},
+  {"trY0","#it{y_{0}}"},
+  {"trUt0","u_{T0}"},
+  {"centrality", "Centrality (%)"},
+  {"fit_fpol3", "dv_{1}/d#it{y}"},
+  {"fit_fpol3star", "dv_{1}/d#it{y}"},
+};
+
+map <string, string> legendReplaceMap
+{
+  {"proton", "p"},
+  {"pionpos", "#pi^{+}"},
+  {"pionneg", "#pi^{-}"},
+  {"(\\d{1,2}-\\d\\d)", "$&%"},
+};
+
 const vector <int> colors = 
 {
   kBlue, kRed, kGreen+2, kMagenta+2, kBlack, kOrange+2, kPink+2,
@@ -39,7 +63,7 @@ const vector <vector <string>> drawOptions =
 };
 
 float markerSize = 1.5;
-float graphShift = 0.000;
+float graphShift = 0.003;
 float xAxisTitleSize = 0.05;
 float yAxisTitleSize = 0.05;
 
@@ -66,27 +90,28 @@ vector<vector<string>> findMatches(string pattern, map<string, T> tMap)
   return matches;
 }
 
-void R1_3S(string name, string c1, string c2, string c3)
+void R1_3S(string name, string c1, string c2, string c3, Qn::AxisD rebinAxis={"",{}})
 {
-  auto corr1=corrMap.at(c1);
-  auto corr2=corrMap.at(c2);
-  auto corr3=corrMap.at(c3);
-  for(auto &c:corr1) c.SetWeightType(Qn::Stat::WeightType::REFERENCE);
-  for(auto &c:corr2) c.SetWeightType(Qn::Stat::WeightType::REFERENCE);
-  for(auto &c:corr3) c.SetWeightType(Qn::Stat::WeightType::REFERENCE);
-  auto result=Sqrt(2*corr1*corr2/corr3);
+  vector<Qn::DataContainerStatCalculate> corrs={corrMap.at(c1), corrMap.at(c2), corrMap.at(c3)};
+  for(auto &corr:corrs)
+  {
+    for(auto &c:corr) c.SetWeightType(Qn::Stat::WeightType::REFERENCE);
+    if(!rebinAxis.Name().empty()) corr=corr.Rebin(rebinAxis);
+  }
+  auto result=Sqrt(2*corrs.at(0)*corrs.at(1)/corrs.at(2));
   if (!corrMap.emplace(name, result).second)
     cout << __func__ << ": ERROR! correlation already defined: " << name << endl;
 }
 
-void R1_4S(string name, string c1, string c2, float scale=1.)
+void R1_4S(string name, string c1, string c2, float scale=1., Qn::AxisD rebinAxis={"",{}})
 {
-  Qn::DataContainerStatCalculate result;
-  auto corr1=corrMap.at(c1);
-  auto corr2=corrMap.at(c2);
-  for(auto &c:corr1) c.SetWeightType(Qn::Stat::WeightType::REFERENCE);
-  for(auto &c:corr2) c.SetWeightType(Qn::Stat::WeightType::REFERENCE);
-  result=scale*2*corr1/corr2;
+  vector<Qn::DataContainerStatCalculate> corrs={corrMap.at(c1), corrMap.at(c2)};
+  for(auto &corr:corrs)
+  {
+    for(auto &c:corr) c.SetWeightType(Qn::Stat::WeightType::REFERENCE);
+    if(!rebinAxis.Name().empty()) corr=corr.Rebin(rebinAxis);
+  }
+  auto result=scale*2*corrs.at(0)/corrs.at(1);
   if (!corrMap.emplace(name, result).second)
     cout << __func__ << ": ERROR! correlation already defined: " << name << endl;
 }
@@ -107,9 +132,41 @@ void v2(string name, string vObs, string res1, string res2)
     cout << __func__ << ": ERROR! correlation already defined: " << name << endl;
 }
 
+//void addGraphsFromFile(string fileName, string postfix)
+//{
+//  TFile f(fileName.c_str());
+//  string graphName=obj->GetName();
+//  auto g=new TGraphErrors(path.c_str());
+//  g->SetName(graphName.c_str());
+//  g->SetTitle(graphName.c_str());
+//  if (!graphMap.emplace(graphName, g).second)
+//    cout << __func__ << ": ERROR! graph already defined: " << graphName << endl;
+//}
+
+void addGraphFromTxt(string pattern)
+{
+  auto wd=gSystem->GetWorkingDirectory();
+  regex re(pattern);
+  TSystemDirectory dir(wd.c_str(), wd.c_str());
+  smatch sm;
+  for(const auto& obj:*dir.GetListOfFiles())
+  {
+    string path=Form("%s%s", obj->GetTitle(), obj->GetName());
+    if(regex_match(path, sm, re))
+    {
+      string graphName=obj->GetName();
+      auto g=new TGraphErrors(path.c_str());
+      g->SetName(graphName.c_str());
+      g->SetTitle(graphName.c_str());
+      if (!graphMap.emplace(graphName, g).second)
+        cout << __func__ << ": ERROR! graph already defined: " << graphName << endl;
+    }
+  }
+}
+
 void scale(string pattern, double scale)
 {
-  if(verbose) cout << __func__ << ": " << endl;
+  if(verbose) cout << endl << __func__ << " " << scale << " ";
   auto matches=findMatches<Qn::DataContainerStatCalculate>(pattern, corrMap);
   for (auto &m:matches)
   {
@@ -118,9 +175,24 @@ void scale(string pattern, double scale)
   }
 }
 
+void changeBinEdges(string pattern, string axisName, std::function<double(double)> func, string axisNameNew="")
+{
+  if(verbose) cout << endl << __func__ << " " << pattern << " " << axisName << "->" << axisNameNew << "";
+  auto matches=findMatches<Qn::DataContainerStatCalculate>(pattern, corrMap);
+  for (auto &m:matches)
+  {
+    auto &corr=corrMap.at(m.at(0));
+    auto &axis=corr.GetAxis(axisName);
+    for (auto &x:axis.GetBinEdges())
+     x=func(x); 
+    if(!axisNameNew.empty())
+      axis.SetName(axisNameNew);
+  }
+}
+
 void project(string pattern, vector<string> axes)
 {
-  if(verbose) cout << __func__ << ": " << endl;
+  if(verbose) cout << endl << __func__ << " ";
   auto matches=findMatches<Qn::DataContainerStatCalculate>(pattern, corrMap);
   for (auto &m:matches)
   {
@@ -136,7 +208,7 @@ void project(string pattern, vector<string> axes)
 
 void rebin(string pattern, Qn::AxisD axis, string comment)
 {
-  if(verbose) cout << __func__ << ": " << endl;
+  if(verbose) cout << endl << __func__ << " " << axis.Name() << " " << comment << " ";
   auto matches=findMatches<Qn::DataContainerStatCalculate>(pattern, corrMap);
   for (auto &m:matches)
   {
@@ -150,7 +222,7 @@ void rebin(string pattern, Qn::AxisD axis, string comment)
 
 void unfold(string pattern, string axisName, string format="%02.0f")
 {
-  if(verbose) cout << __func__ << ": " << endl;
+  if(verbose) cout << endl << __func__ << " " << axisName << " ";
   auto matches=findMatches<Qn::DataContainerStatCalculate>(pattern, corrMap);
   for (auto &m:matches)
   {
@@ -173,7 +245,7 @@ void unfold(string pattern, string axisName, string format="%02.0f")
 
 void merge(string pattern) //TODO: try solving with one regexp: merge those with captures, save to different containers without captures(e.g. different centralities) 
 {
-  if(verbose) cout << __func__ << ": " << endl;
+  if(verbose) cout << endl << __func__ << " ";
   auto matches=findMatches<Qn::DataContainerStatCalculate>(pattern, corrMap);
   if (matches.size()==0) return;
   Qn::DataContainerStatCalculate merged;
@@ -189,21 +261,6 @@ void merge(string pattern) //TODO: try solving with one regexp: merge those with
   }
   if (!corrMap.emplace(mergedName, merged).second)
     cout << __func__ << ": ERROR! correlation already defined: " << mergedName << endl;
-}
-
-void fit(string pattern, const char *funcName, const char *option="qr")
-{
-  if(verbose) cout << __func__ << ": " << endl;
-  auto matches=findMatches<Qn::DataContainerStatCalculate>(pattern, corrMap);
-  string postfix=Form("_fit_%s", funcName);
-  for(auto &m:matches)
-  {
-    auto name=m.at(0);
-    auto g=ToTGraph(corrMap.at(name));
-    g->Fit(funcName, option, "");
-    if (!graphMap.emplace(name+postfix, g).second)
-      cout << __func__ << ": ERROR! fit already defined: " << name << endl;
-  }
 }
 
 void ShiftGraphsX(TMultiGraph *mg, float dx=0.0) 
@@ -225,28 +282,51 @@ TGraphErrors *makeGraph(string name)
   auto corr=corrMap.at(name);
   auto g=ToTGraph(corr);
   if(!g) return nullptr;
-  for(auto &axis:corr.GetAxes())
-    g->GetXaxis()->SetTitle(axis.Name().c_str());
-  g->GetYaxis()->SetTitle(name.substr(0,2).c_str());
+  auto xname=corr.GetAxes().at(0).Name();
+  auto yname=name.substr(0,2);
+  if(axisTitles.count(xname)) xname=axisTitles.at(xname);
+  if(axisTitles.count(yname)) yname=axisTitles.at(yname);
+  
+  g->GetXaxis()->SetTitle(xname.c_str());
+  g->GetYaxis()->SetTitle(yname.c_str());
   g->SetName(name.c_str());
   return g;
 }
 
+void fit(string pattern, const char *funcName, const char *option="qr")
+{
+  if(verbose) cout << endl << __func__ << " ";
+  auto matches=findMatches<Qn::DataContainerStatCalculate>(pattern, corrMap);
+  string postfix=Form("_fit_%s", funcName);
+  for(auto &m:matches)
+  {
+    auto name=m.at(0);
+    //auto g=ToTGraph(corrMap.at(name));
+    auto g=makeGraph(name);
+    g->Fit(funcName, option, "");
+//    g->GetXaxis()->SetTitle(corrMap.at(name).GetAxes().at(0)->Name().c_str());
+    if (!graphMap.emplace(name+postfix, g).second)
+      cout << __func__ << ": ERROR! fit already defined: " << name << endl;
+  }
+}
+
 void projectFitParameters(string pattern)
 {
-  if(verbose) cout << __func__ << ": " << pattern << endl;
+  if(verbose) cout << endl << __func__ << " ";
   auto matches=findMatches<TGraphErrors*>(pattern, graphMap);
   vector<double> xPoints;
   int nPars=0;
-  string xaxis, yaxis;
+  string xname, yname;
   for(auto &match:matches)
   {
     auto g=graphMap.at(match.at(0));
     if(g->GetListOfFunctions()->GetSize()>0)
     {
       nPars=((TF1*)g->GetListOfFunctions()->At(0))->GetNumberFreeParameters();
-      xaxis=match.at(1).c_str();
-      yaxis=match.at(4).c_str();
+      xname=match.at(1);
+      yname=match.at(4);
+      if(axisTitles.count(xname)) xname=axisTitles.at(xname);
+      if(axisTitles.count(yname)) yname=axisTitles.at(yname);
       break;
     }
   }
@@ -274,8 +354,8 @@ void projectFitParameters(string pattern)
   {
     auto gnamei=gname+Form("_par%i", i);
     auto g=new TGraphErrors(parameters.at(i).size(), &xPoints[0], &parameters.at(i)[0], 0, &parErrors.at(i)[0]);
-    g->GetXaxis()->SetTitle(xaxis.c_str());
-    g->GetYaxis()->SetTitle(yaxis.c_str());
+    g->GetXaxis()->SetTitle(xname.c_str());
+    g->GetYaxis()->SetTitle(yname.c_str());
     if (!graphMap.emplace(gnamei, g).second)
       cout << __func__ << ": ERROR! graph already defined: " << gnamei << endl;
   }
@@ -310,14 +390,15 @@ string makeCommonName(vector<string> patterns={"R1_(psd.)_(4S)_(X)", "R1_(psd.)_
 
 TMultiGraph* makeMG(vector<string> patterns)
 {
-  auto mg=new TMultiGraph(makeCommonName(patterns).c_str(), makeCommonName(patterns).c_str());
+  auto commonName=makeCommonName(patterns);
+  auto mg=new TMultiGraph(commonName.c_str(), commonName.c_str());
   for(int i=0; i<patterns.size(); i++)
   {
     string pattern=patterns.at(i);
     if(!verbose) cout << Form(boldRed, pattern.c_str()) << ":\t";
     auto matches=findMatches<Qn::DataContainerStatCalculate>(pattern, corrMap);
-    bool plotCorrs=matches.size();
-    if(!plotCorrs)
+    bool corrFound=matches.size();
+    if(!corrFound)
       matches=findMatches<TGraphErrors*>(pattern, graphMap);
 
     for(int j=0; j<matches.size(); j++)
@@ -326,7 +407,7 @@ TMultiGraph* makeMG(vector<string> patterns)
       auto match=matches.at(j);
       auto name=match.at(0);
       if(!verbose) cout << name << "\t";
-      if(plotCorrs)
+      if(corrFound)
         g=makeGraph(name);
       else
         g=graphMap.at(name);
@@ -335,6 +416,9 @@ TMultiGraph* makeMG(vector<string> patterns)
       vector<string> captures(match.begin()+1, match.end());
       for(auto &capture:captures)
         gtitle=gtitle+capture+" ";
+      for(auto &r:legendReplaceMap)
+	gtitle=regex_replace(gtitle, regex(r.first), r.second);
+      cout << "gtitle: " << gtitle << endl;
       g->SetTitle(gtitle.c_str());
       g->SetLineColor(colors.at(j));
       g->SetLineStyle(lineStyles.at(i).at(j));
